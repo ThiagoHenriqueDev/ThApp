@@ -1,0 +1,27 @@
+.container {
+  min-height: 100vh;
+  background-color: #f4f4f5;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 24px;
+  background: white;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+}
+
+.header p {
+  font-size: 14px;
+  color: #333;
+}
+
+.header button {
+  width: auto;
+  padding: 8px 16px;
+}
+
+.content {
+  padding: 24px;
+}
