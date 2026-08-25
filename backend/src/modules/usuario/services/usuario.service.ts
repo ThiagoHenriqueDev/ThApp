@@ -18,12 +18,12 @@ export async function criarUsuario(
   return usuarioRepository.criarUsuario(email, senhaHash);
 }
 
-export async function buscarUsuarioPorId(id: number): Promise<Usuario | null> {
+export async function buscarUsuarioPorId(id: string): Promise<Usuario | null> {
   return usuarioRepository.buscarPorId(id);
 }
 
 export async function atualizarUsuario(
-  id: number,
+  id: string,
   email: string,
   senha: string,
 ): Promise<Usuario> {
@@ -38,7 +38,7 @@ export async function atualizarUsuario(
   return usuarioRepository.atualizarUsuario(id, email, senhaHash);
 }
 
-export async function deletarUsuario(id: number): Promise<Usuario> {
+export async function deletarUsuario(id: string): Promise<Usuario> {
   const usuarioExistente = await usuarioRepository.buscarPorId(id);
 
   if (!usuarioExistente) {

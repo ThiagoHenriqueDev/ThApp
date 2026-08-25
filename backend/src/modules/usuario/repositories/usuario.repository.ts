@@ -19,7 +19,7 @@ export class UsuarioRepository {
     });
   }
 
-  async buscarPorId(id: number) {
+  async buscarPorId(id: string) {
     return prisma.usuario.findUnique({
       where: {
         id,
@@ -27,7 +27,7 @@ export class UsuarioRepository {
     });
   }
 
-  async atualizarUsuario(id: number, email: string, senha: string) {
+  async atualizarUsuario(id: string, email: string, senha: string) {
     return prisma.usuario.update({
       where: {
         id,
@@ -39,7 +39,7 @@ export class UsuarioRepository {
     });
   }
 
-  async deletarUsuario(id: number) {
+  async deletarUsuario(id: string) {
     return prisma.usuario.delete({
       where: {
         id,

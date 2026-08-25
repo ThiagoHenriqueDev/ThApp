@@ -23,10 +23,13 @@ export async function registrar(req: Request, res: Response) {
   }
 }
 
-export async function buscarUsuario(req: Request, res: Response) {
+export async function buscarUsuario(
+  req: Request<{ id: string }>,
+  res: Response,
+) {
   const { id } = req.params;
   try {
-    const usuario = await buscarUsuarioPorId(Number(id));
+    const usuario = await buscarUsuarioPorId(id);
     if (!usuario) {
       return res.status(404).json({ mensagem: 'Usuário não encontrado' });
     }
@@ -42,11 +45,11 @@ export async function buscarUsuario(req: Request, res: Response) {
   }
 }
 
-export async function atualizar(req: Request, res: Response) {
+export async function atualizar(req: Request<{ id: string }>, res: Response) {
   const { id } = req.params;
   const { email, senha } = req.body;
   try {
-    const usuarioAtualizado = await atualizarUsuario(Number(id), email, senha);
+    const usuarioAtualizado = await atualizarUsuario(id, email, senha);
     res.status(200).json({
       mensagem: 'Usuário atualizado com sucesso',
       usuario: {
@@ -59,10 +62,10 @@ export async function atualizar(req: Request, res: Response) {
   }
 }
 
-export async function deletar(req: Request, res: Response) {
+export async function deletar(req: Request<{ id: string }>, res: Response) {
   const { id } = req.params;
   try {
-    const usuarioDeletado = await deletarUsuario(Number(id));
+    const usuarioDeletado = await deletarUsuario(id);
     res.status(200).json({
       mensagem: 'Usuário deletado com sucesso',
       usuario: {
