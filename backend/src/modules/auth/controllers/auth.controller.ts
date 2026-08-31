@@ -5,14 +5,13 @@ export async function login(req: Request, res: Response) {
   const { email, senha } = req.body;
 
   try {
-    const usuario = await autenticar(email, senha);
+    const { usuario, token } = await autenticar(email, senha);
+    const { senha: _senha, ...usuarioSemSenha } = usuario;
 
     return res.status(200).json({
       mensagem: 'Login realizado com sucesso',
-      usuario: {
-        id: usuario.id,
-        email: usuario.email,
-      },
+      usuario: usuarioSemSenha,
+      token,
     });
   } catch (erro) {
     return res.status(401).json({ mensagem: 'Credenciais inválidas' });

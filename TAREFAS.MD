@@ -1,6 +1,6 @@
 # Lista de Tarefas
 
-## Tarefa 1 — Login deve retornar um token de acesso []
+## Tarefa 1 — Login deve retornar um token de acesso [OK]
 
 Descrição: Hoje o login apenas confirma email/senha e devolve os dados do usuário. É preciso que, ao autenticar com sucesso, a API também gere e retorne um token que identifique aquele usuário nas próximas requisições.
 
@@ -10,7 +10,7 @@ O token deve carregar a identidade do usuário (id) de forma segura, sem poder s
 O token deve ter validade (expirar após um tempo)
 A resposta do login passa a incluir o token junto com os dados do usuário
 
-## Tarefa 2 — Rotas de usuário devem exigir autenticação []
+## Tarefa 2 — Rotas de usuário devem exigir autenticação [OK]
 
 Descrição: Atualmente qualquer pessoa pode buscar, alterar ou deletar qualquer usuário só sabendo o id na URL. Essas rotas precisam passar a exigir um token válido para serem acessadas.
 
