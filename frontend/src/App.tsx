@@ -1,39 +1,36 @@
-import { useState } from "react";
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import "./App.css";
+import { useAuth } from "./contexts/useAuth";
 import Cadastro from "./pages/Cadastro/Cadastro";
 import Home from "./pages/Home/Home";
 import Login from "./pages/Login/Login";
-import type { Usuario } from "./types/usuario";
-
-type Tela = "login" | "cadastro" | "home";
+import { RotaProtegida } from "./routes/RotaProtegida";
 
 function App() {
-  const [tela, setTela] = useState<Tela>("login");
-  const [usuario, setUsuario] = useState<Usuario | null>(null);
-
-  function handleLoginSuccess(usuarioLogado: Usuario) {
-    setUsuario(usuarioLogado);
-    setTela("home");
-  }
-
-  function handleSair() {
-    setUsuario(null);
-    setTela("login");
-  }
-
-  if (tela === "home" && usuario) {
-    return <Home usuario={usuario} onSair={handleSair} />;
-  }
-
-  if (tela === "cadastro") {
-    return <Cadastro onIrParaLogin={() => setTela("login")} />;
-  }
+  const { usuario } = useAuth();
 
   return (
-    <Login
-      onIrParaCadastro={() => setTela("cadastro")}
-      onLoginSucesso={handleLoginSuccess}
-    />
+    <BrowserRouter>
+      <Routes>
+        <Route
+          path="/login"
+          element={usuario ? <Navigate to="/home" replace /> : <Login />}
+        />
+        <Route
+          path="/cadastro"
+          element={usuario ? <Navigate to="/home" replace /> : <Cadastro />}
+        />
+        <Route
+          path="/home"
+          element={
+            <RotaProtegida>
+              <Home />
+            </RotaProtegida>
+          }
+        />
+        <Route path="*" element={<Navigate to="/login" replace />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
 

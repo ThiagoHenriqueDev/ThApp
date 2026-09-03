@@ -5,6 +5,7 @@ import {
   atualizar,
   buscarUsuario,
   deletar,
+  meuPerfil,
   registrar,
 } from '../controllers/usuario.controller';
 
@@ -13,6 +14,8 @@ const router = Router();
 router.post('/cadastrar', registrar);
 
 router.use(authMiddleware);
+
+router.get('/me', authMiddleware, meuPerfil);
 
 router.get('/:id', buscarUsuario);
 router.put('/:id', atualizar);

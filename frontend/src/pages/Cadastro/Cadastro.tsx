@@ -1,15 +1,13 @@
 import type { FormEvent } from "react";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Button from "../../components/Button/Button";
 import Input from "../../components/Input/Input";
 import { cadastrar } from "../../services/usuario.service";
 import styles from "./Cadastro.module.css";
 
-interface CadastroProps {
-  onIrParaLogin: () => void;
-}
-
-function Cadastro({ onIrParaLogin }: CadastroProps) {
+function Cadastro() {
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
   const [erro, setErro] = useState("");
@@ -65,7 +63,7 @@ function Cadastro({ onIrParaLogin }: CadastroProps) {
           {carregando ? "Criando..." : "Criar conta"}
         </Button>
 
-        <p className={styles.link} onClick={onIrParaLogin}>
+        <p className={styles.link} onClick={() => navigate("/login")}>
           Já tem conta? Entrar
         </p>
       </form>

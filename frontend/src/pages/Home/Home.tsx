@@ -1,18 +1,22 @@
+import { useNavigate } from "react-router-dom";
 import Button from "../../components/Button/Button";
-import type { Usuario } from "../../types/usuario";
+import { useAuth } from "../../contexts/useAuth";
 import styles from "./Home.module.css";
 
-interface HomeProps {
-  usuario: Usuario;
-  onSair: () => void;
-}
+function Home() {
+  const navigate = useNavigate();
+  const { usuario, logout } = useAuth();
 
-function Home({ usuario, onSair }: HomeProps) {
+  function handleLogout() {
+    logout();
+    navigate("/login");
+  }
+
   return (
     <div className={styles.container}>
       <header className={styles.header}>
-        <p>Olá, {usuario.email}</p>
-        <Button onClick={onSair}>Sair</Button>
+        <p>Olá, {usuario?.email}</p>
+        <Button onClick={handleLogout}>Sair</Button>
       </header>
 
       <main className={styles.content}>

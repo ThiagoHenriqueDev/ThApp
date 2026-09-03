@@ -1,17 +1,15 @@
 import type { FormEvent } from "react";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Button from "../../components/Button/Button";
 import Input from "../../components/Input/Input";
-import { login } from "../../services/auth.service";
-import type { Usuario } from "../../types/usuario";
+import { useAuth } from "../../contexts/useAuth";
+import { login as loginApi } from "../../services/auth.service";
 import styles from "./Login.module.css";
 
-interface LoginProps {
-  onIrParaCadastro: () => void;
-  onLoginSucesso: (usuario: Usuario) => void;
-}
-
-function Login({ onIrParaCadastro, onLoginSucesso }: LoginProps) {
+function Login() {
+  const { login } = useAuth();
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
   const [erro, setErro] = useState("");
@@ -23,9 +21,9 @@ function Login({ onIrParaCadastro, onLoginSucesso }: LoginProps) {
     setCarregando(true);
 
     try {
-      const resposta = await login({ email, senha });
-      console.log("Login OK:", resposta);
-      onLoginSucesso(resposta.usuario);
+      const resposta = await loginApi({ email, senha });
+      login(resposta.usuario, resposta.token);
+      navigate("/home");
     } catch (error) {
       console.error("Erro ao logar:", error);
       setErro("Email ou senha inválidos");
@@ -63,7 +61,7 @@ function Login({ onIrParaCadastro, onLoginSucesso }: LoginProps) {
           {carregando ? "Entrando..." : "Entrar"}
         </Button>
 
-        <p className={styles.link} onClick={onIrParaCadastro}>
+        <p className={styles.link} onClick={() => navigate("/cadastro")}>
           Não tem conta? Criar conta
         </p>
       </form>

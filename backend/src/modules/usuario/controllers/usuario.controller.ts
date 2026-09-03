@@ -1,11 +1,15 @@
 // src/modules/usuario/controllers/usuario.controller.ts
 import type { Request, Response } from 'express';
+import type { RequestAutenticado } from '../../../middlewares/auth.middleware';
+import { UsuarioRepository } from '../repositories/usuario.repository';
 import {
   atualizarUsuario,
   buscarUsuarioPorId,
   criarUsuario,
   deletarUsuario,
 } from '../services/usuario.service';
+
+const usuarioRepository = new UsuarioRepository();
 
 export async function registrar(req: Request, res: Response) {
   const { email, senha } = req.body;
@@ -75,5 +79,23 @@ export async function deletar(req: Request<{ id: string }>, res: Response) {
     });
   } catch (error) {
     res.status(400).json({ mensagem: 'Erro ao deletar usuário' });
+  }
+}
+
+export async function meuPerfil(req: RequestAutenticado, res: Response) {
+  try {
+    const usuario = await usuarioRepository.buscarPorId(
+      req.usuarioId as string,
+    );
+
+    if (!usuario) {
+      return res.status(404).json({ mensagem: 'Usuário não encontrado' });
+    }
+
+    const { senha: _senha, ...usuarioSemSenha } = usuario;
+
+    return res.status(200).json({ usuario: usuarioSemSenha });
+  } catch (error) {
+    return res.status(500).json({ mensagem: 'Erro ao buscar usuário' });
   }
 }

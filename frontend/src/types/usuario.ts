@@ -11,4 +11,5 @@ export interface LoginPayload {
 export interface LoginResponse {
   mensagem: string;
   usuario: Usuario;
+  token: string;
 }
