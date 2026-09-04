@@ -1,4 +1,4 @@
-import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
+import { Navigate, Route, Routes } from "react-router-dom";
 import "./App.css";
 import { useAuth } from "./contexts/useAuth";
 import Cadastro from "./pages/Cadastro/Cadastro";
@@ -10,27 +10,25 @@ function App() {
   const { usuario } = useAuth();
 
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route
-          path="/login"
-          element={usuario ? <Navigate to="/home" replace /> : <Login />}
-        />
-        <Route
-          path="/cadastro"
-          element={usuario ? <Navigate to="/home" replace /> : <Cadastro />}
-        />
-        <Route
-          path="/home"
-          element={
-            <RotaProtegida>
-              <Home />
-            </RotaProtegida>
-          }
-        />
-        <Route path="*" element={<Navigate to="/login" replace />} />
-      </Routes>
-    </BrowserRouter>
+    <Routes>
+      <Route
+        path="/login"
+        element={usuario ? <Navigate to="/home" replace /> : <Login />}
+      />
+      <Route
+        path="/cadastro"
+        element={usuario ? <Navigate to="/home" replace /> : <Cadastro />}
+      />
+      <Route
+        path="/home"
+        element={
+          <RotaProtegida>
+            <Home />
+          </RotaProtegida>
+        }
+      />
+      <Route path="*" element={<Navigate to="/login" replace />} />
+    </Routes>
   );
 }
 
