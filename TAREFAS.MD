@@ -30,7 +30,7 @@ Ao logar com sucesso, o token recebido deve ser armazenado no navegador
 Ao abrir o app, se existir um token salvo, o usuário deve continuar autenticado (sem precisar logar de novo)
 Ao clicar em "Sair", o token deve ser removido e o usuário volta pra tela de login
 
-## Tarefa 4 — Requisições autenticadas devem enviar o token []
+## Tarefa 4 — Requisições autenticadas devem enviar o token [X]
 
 Descrição: Toda chamada à API que exige login precisa informar o token salvo, para que o backend saiba quem está fazendo a requisição.
 
