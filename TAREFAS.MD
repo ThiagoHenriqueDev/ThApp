@@ -20,7 +20,7 @@ Requisição sem token, ou com token inválido/expirado, deve ser rejeitada ante
 Um usuário só pode alterar/deletar a própria conta, mesmo que tente informar o id de outra pessoa na URL
 Buscar um usuário por id continua liberado (ou defina se isso também deve exigir login)
 
-## Tarefa 3 — Frontend deve manter a sessão do usuário logado []
+## Tarefa 3 — Frontend deve manter a sessão do usuário logado [OK]
 
 Descrição: Hoje, ao recarregar a página, o usuário perde o login e volta pra tela inicial. É preciso guardar a sessão de forma que ela sobreviva a um refresh da página.
 

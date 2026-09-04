@@ -4,11 +4,11 @@
 
 ## Visão geral
 
-App de tarefas com módulos de **financeiro**, **lista de mercado** e **tarefas domésticas**, desenvolvido do zero (sem geradores/atalhos) para aprender programação com Node.js + TypeScript no backend e React + TypeScript no frontend.
+App de tarefas com módulos de **financeiro**, **lista de mercado** e **tarefas domésticas**, desenvolvido com Node.js + TypeScript no backend e React + TypeScript no frontend.
 
 - **Backend:** Node.js, TypeScript, Express, Prisma, PostgreSQL (hospedado no Neon)
 - **Frontend:** React, TypeScript, Vite, CSS Modules
-- **Autenticação:** ainda sem token (JWT) — login apenas confere credenciais e retorna o usuário. Sessão não persiste ao dar F5.
+- **Autenticação:** JWT no backend, middleware para proteger as rotas de usuário e persistência do token no `localStorage` do frontend.
 
 ---
 
@@ -18,44 +18,54 @@ App de tarefas com módulos de **financeiro**, **lista de mercado** e **tarefas 
 
 ```
 backend/
-└── src/
-    ├── config/
-    │   └── prisma.ts
-    ├── modules/
-    │   ├── auth/
-    │   │   ├── controllers/auth.controller.ts
-    │   │   ├── services/auth.service.ts
-    │   │   └── routes/auth.route.ts
-    │   └── usuario/
-    │       ├── controllers/usuario.controller.ts
-    │       ├── services/usuario.service.ts
-    │       ├── repositories/usuario.repository.ts
-    │       └── routes/usuario.route.ts
-    ├── utils/
-    │   └── hash.ts
-    ├── app.ts
-    └── server.ts
+├── prisma/
+│   ├── schema.prisma
+│   └── migrations/
+├── generated/prisma/       # Cliente Prisma gerado
+├── src/
+│   ├── config/prisma.ts
+│   ├── middlewares/auth.middleware.ts
+│   ├── modules/
+│   │   ├── auth/
+│   │   │   ├── controllers/auth.controller.ts
+│   │   │   ├── services/auth.service.ts
+│   │   │   └── routes/auth.route.ts
+│   │   └── usuario/
+│   │       ├── controllers/usuario.controller.ts
+│   │       ├── services/usuario.service.ts
+│   │       ├── repositories/usuario.repository.ts
+│   │       └── routes/usuario.route.ts
+│   ├── utils/
+│   │   ├── hash.ts
+│   │   └── jwt.ts
+│   ├── app.ts
+│   └── server.ts
+├── example.env
+├── package.json
+├── prisma.config.ts
+└── tsconfig.json
 ```
 
-Padrão adotado: um módulo por domínio, cada um com `controller` (recebe request/response), `service` (regra de negócio) e `repository` (acesso ao banco via Prisma).
+Padrão adotado: um módulo por domínio, com `controller` (recebe request/response), `service` (regra de negócio) e `repository` (acesso ao banco via Prisma). Autenticação transversal fica em `middlewares/` e utilitários ficam em `utils/`.
 
 ### Rotas disponíveis
 
-| Método | Rota                  | Descrição                     |
-| ------ | --------------------- | ----------------------------- |
-| POST   | `/auth/login`         | Login (email + senha)         |
-| POST   | `/usuarios/cadastrar` | Criar usuário (email + senha) |
-| GET    | `/usuarios/:id`       | Buscar usuário por id         |
-| PUT    | `/usuarios/:id`       | Atualizar usuário             |
-| DELETE | `/usuarios/:id`       | Deletar usuário               |
+| Método | Rota                  | Acesso  | Descrição                   |
+| ------ | --------------------- | ------- | --------------------------- |
+| POST   | `/auth/login`         | Público | Login e geração do JWT      |
+| POST   | `/usuarios/cadastrar` | Público | Criar usuário               |
+| GET    | `/usuarios/me`        | JWT     | Buscar o perfil autenticado |
+| GET    | `/usuarios/:id`       | JWT     | Buscar usuário por id       |
+| PUT    | `/usuarios/:id`       | JWT     | Atualizar usuário           |
+| DELETE | `/usuarios/:id`       | JWT     | Deletar usuário             |
 
 - Servidor roda na porta `3000`
 - CORS habilitado (`app.use(cors())`)
 - Banco: PostgreSQL via Prisma, hospedado no Neon
+- Rotas protegidas esperam `Authorization: Bearer <token>`
 
 ### Pendências / próximos passos do backend
 
-- [ ] Autenticação por token (JWT)
 - [ ] Módulo financeiro
 - [ ] Módulo lista de mercado
 - [ ] Módulo tarefas domésticas
@@ -86,13 +96,21 @@ frontend/
     │   └── Home/
     │       ├── Home.tsx
     │       └── Home.module.css
+    ├── contexts/
+    │   ├── authContext.ts
+    │   ├── AuthProvider.tsx
+    │   └── useAuth.ts
+    ├── hooks/              # Hooks reutilizáveis (em expansão)
+    ├── routes/
+    │   └── RotaProtegida.tsx
     ├── services/
     │   ├── api.ts              # URL base da API
     │   ├── auth.service.ts     # login
-    │   └── usuario.service.ts  # cadastrar
+    │   ├── token.ts            # token no localStorage
+    │   └── usuario.service.ts  # cadastro e perfil
     ├── types/
     │   └── usuario.ts          # Usuario, LoginPayload, LoginResponse
-    ├── App.tsx
+    ├── App.tsx                # BrowserRouter e rotas da aplicação
     ├── App.css
     ├── main.tsx
     └── index.css
@@ -108,18 +126,20 @@ Padrões adotados:
 
 ### Fluxo de navegação atual
 
-Ainda sem `react-router-dom` — o `App.tsx` controla qual tela mostrar via `useState<"login" | "cadastro" | "home">`, e guarda o usuário logado em `useState<Usuario | null>`.
+O `App.tsx` usa `react-router-dom` para definir as rotas. O `AuthProvider` mantém o usuário autenticado, recupera o perfil usando o token salvo e expõe `login` e `logout` pelo hook `useAuth`.
 
 ```
-Login ⇄ Cadastro
-  │
-  ▼ (login com sucesso)
- Home (mostra email do usuário logado + botão Sair)
+`/login` ⇄ `/cadastro`
+    │
+    ▼ (login com sucesso)
+`/home` (rota protegida)
 ```
 
-- `Login` → chama `login()` do `auth.service.ts` → em caso de sucesso, avisa o `App` via prop `onLoginSucesso`
+- `Login` → chama o serviço de autenticação → salva o JWT e atualiza o contexto
 - `Cadastro` → chama `cadastrar()` do `usuario.service.ts`
-- `Home` → recebe `usuario` e `onSair` via props; ainda é uma página placeholder
+- `AuthProvider` → ao iniciar, consulta `/usuarios/me` quando há token salvo
+- `RotaProtegida` → redireciona para `/login` quando não há usuário autenticado
+- `Home` → acessa o usuário pelo contexto e permite encerrar a sessão
 
 ### Funcionalidades prontas
 
@@ -127,13 +147,13 @@ Login ⇄ Cadastro
 - [x] Tela de Login (consumindo `/auth/login`)
 - [x] Tela de Cadastro (consumindo `/usuarios/cadastrar`)
 - [x] Tela Home básica pós-login
-- [x] Navegação simples entre telas via estado no `App.tsx`
+- [x] Navegação com `react-router-dom`
+- [x] Context API para usuário logado
+- [x] JWT salvo no `localStorage` e carregamento da sessão ao atualizar a página
+- [x] Rota protegida para a Home
 
 ### Pendências / próximos passos do frontend
 
-- [ ] React Router (substituir navegação por `useState`)
-- [ ] Context API para usuário logado (substituir prop drilling do `App.tsx`)
-- [ ] Persistência de sessão (token + localStorage) — depende do backend implementar JWT
 - [ ] Telas dos módulos: financeiro, lista de mercado, tarefas domésticas
 
 ---
@@ -141,4 +161,6 @@ Login ⇄ Cadastro
 ## Decisões e observações registradas
 
 - Cadastro pede só `email` e `senha` (mesmo formato do login) — por isso reaproveita o tipo `LoginPayload`
-- Sem CORS configurado inicialmente causou falha nas primeiras chamadas do front → resolvido com `cors()` no `app.ts`
+- O backend usa `cors()` e recebe JSON via `express.json()`
+- O frontend usa `http://localhost:3000` como URL base da API em `services/api.ts`
+- O token é armazenado com a chave `@ThApp:token`
